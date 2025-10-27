@@ -37,6 +37,14 @@
 The unlocker creates a log file at `~/icecream_log.txt` (in your home directory). If you encounter any issues, this file is the first place to check for errors or other diagnostic information.
 You can also disable loggin by modifing LOGGING_LEVEL variable in src/lib.rs
 
+### Apple Silicon Compatibility
+
+This unlocker was developed and tested on an Intel-based Mac. It has **not been tested** on Apple Silicon (M1, M2, M3, etc.) Macs.
+
+**Theoretically, it should work correctly** However, this is not guaranteed.
+
+If you have an Apple Silicon Mac, please consider testing it and **reporting your results** (whether it works or not) in the project's "Issues" tab. Your feedback would be greatly appreciated!
+
 ### Credits
 
 This project was heavily inspired by and based on the initial codebase of [anticitizn/creamlinux](https://github.com/anticitizn/creamlinux). A huge thank you to their foundational work.

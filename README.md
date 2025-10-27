@@ -15,6 +15,7 @@
 *   **Configurable:** A simple `icecream.ini` file lets you control exactly which DLCs are activated.
 *   **Dynamic Hooking:** Patches game functions in memory at runtime to avoid modifying game files directly.
 
+---
 
 ### Installation (HOI4)
 
@@ -33,9 +34,13 @@
   
 5.  Place both downloaded files (`libsteam_api.dylib` and `icecream.ini`) into the same directory where `libsteam_api_o.dylib` is now located.
 
+---
+
 ### Troubleshooting
 The unlocker creates a log file at `~/icecream_log.txt` (in your home directory). If you encounter any issues, this file is the first place to check for errors or other diagnostic information.
 You can also disable loggin by modifing LOGGING_LEVEL variable in src/lib.rs
+
+---
 
 ### Apple Silicon Compatibility
 
@@ -44,6 +49,8 @@ This unlocker was developed and tested on an Intel-based Mac. It has **not been 
 **Theoretically, it should work correctly** However, this is not guaranteed.
 
 If you have an Apple Silicon Mac, please consider testing it and **reporting your results** (whether it works or not) in the project's "Issues" tab. Your feedback would be greatly appreciated!
+
+---
 
 ### Credits
 

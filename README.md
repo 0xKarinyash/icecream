@@ -2,7 +2,7 @@
 
 **⚠️ ATTENTION: THIS IS AN EXPERIMENTAL VERSION ⚠️**
 
-> This current version is confirmed to work **only** with Hearts Of Iron IV. It should work with other games. But i'll test that when finish "stable" version also its is confirmed to work **ONLY** when launching the game executable directly from the terminal. Launching the game via the official Paradox Launcher may not work correctly or could lead to unexpected issues. Use at your own risk.
+> This current version is confirmed to work **only** with Hearts Of Iron IV. It *should*, but not guaranteed to work with other games. But i'll test that when finish "stable" version.
 
 ---
 
@@ -33,13 +33,9 @@
   
 5.  Place both downloaded files (`libsteam_api.dylib` and `icecream.ini`) into the same directory where `libsteam_api_o.dylib` is now located.
 
-### How to run
-1. Open the Terminal application
-2. Go to game folder `cd "~/Library/Application Support/Steam/steamapps/common/Hearts of Iron IV/`
-3. Run the game `./hoi4.app/Contents/MacOS/hoi4`
-
 ### Troubleshooting
 The unlocker creates a log file at `~/icecream_log.txt` (in your home directory). If you encounter any issues, this file is the first place to check for errors or other diagnostic information.
+You can also disable loggin by modifing LOGGING_LEVEL variable in src/lib.rs
 
 ### Credits
 

@@ -10,7 +10,7 @@ use std::ffi::c_void;
 use std::ffi::CStr;
 use std::io::prelude::*;
 use std::os::raw::c_char;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::collections::HashMap;
 use std::ptr;
@@ -95,6 +95,19 @@ unsafe extern "C" fn hooked_user_has_license(_this: *mut c_void, _steam_id: u64,
     return 2; // k_EUserHasLicenseForAppResultDoesNotHaveLicense
 }
 
+fn get_game_root_dir() -> Option<PathBuf> {
+    unsafe {
+        let mut info: libc::Dl_info = std::mem::zeroed();
+        let addr = get_game_root_dir as *const c_void;
+        if libc::dladdr(addr, &mut info) != 0 && !info.dli_fname.is_null() {
+            let dylib_path = CStr::from_ptr(info.dli_fname);
+            let dylib_path = Path::new(dylib_path.to_str().ok()?);
+            return dylib_path.parent().map(|p| p.to_path_buf());
+        }
+    }
+    None
+}
+
 pub type HSteamUser = u32;
 pub type SteamAPICall_t = u64;
 
@@ -129,7 +142,19 @@ struct RealApi {
 }
 
 static REAL_STEAM_API: Lazy<Result<RealApi, libloading::Error>> = Lazy::new(|| unsafe {
-    let lib = Library::new("libsteam_api_o.dylib")?;
+    let game_root_dir = match get_game_root_dir() {
+        Some(path) => path,
+        None => {
+            log!("CRITICAL: Could not determine the path of the dylib. Cannot load original Steam API.");
+            let dummy_path = Path::new("cannot_find_path_so_loading_will_fail.dylib");
+            return Err(Library::new(dummy_path).unwrap_err());
+        }
+    };
+
+    let original_lib_path = game_root_dir.join("libsteam_api_o.dylib");
+    log!("Attempting to load original Steam API from: {}", original_lib_path.display());
+    let lib = Library::new(&original_lib_path)?;
+
     Ok(RealApi {
         api_init: mem::transmute(lib.get::<unsafe extern "C" fn() -> bool>(b"SteamAPI_Init")?),
         internal_create_interface: mem::transmute(lib.get::<unsafe extern "C" fn(*const c_char) -> *mut c_void>(b"SteamInternal_CreateInterface")?),
@@ -175,9 +200,15 @@ fn load_dlcs_from_ini(config_path: &str) -> Result<u16, Box<dyn Error>>{
 #[ctor]
 fn constructor() {
     log!("\n\n--- IceCream loaded ---");
-    match load_dlcs_from_ini(CONFIG_PATH) {
-        Ok(c) => log!("Loaded {c} dlcs from {CONFIG_PATH}"),
-        Err(e) => log!("Failed to load dlcs from {CONFIG_PATH}. Nothing will be unlocked! Error: {e}")
+    if let Some(game_root_dir) = get_game_root_dir() {
+        let config_path = game_root_dir.join(CONFIG_PATH);
+        log!("Looking for config at {}", config_path.display());
+        match load_dlcs_from_ini(config_path.to_str().unwrap_or_default()) {
+            Ok(c) => log!("Loaded {} dlcs from {}", c, config_path.display()),
+            Err(e) => log!("Failed to load dlcs from {CONFIG_PATH}. Nothing will be unlocked! Error: {e}")
+        }
+    } else {
+        log!("Critical: failed to determine path of the dylib. Unlocker will not function")
     }
 }
 
